@@ -8,7 +8,7 @@ function Tool({ type }) {
   });
 
   return (
-    <div ref={ref}>
+    <div ref={ref} style={{width: "100%"}}>
       {type}
     </div>
   );
@@ -16,7 +16,7 @@ function Tool({ type }) {
 
 function Toolbar() {
   return (
-    <div>
+    <div className='app-toolbar'>
       <Tool type="text" />
       <Tool type="image" />
       <Tool type="video" />

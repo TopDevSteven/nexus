@@ -1,0 +1,12 @@
+.app-header {
+    background-color: aqua;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    .btn-group {
+        margin-left: auto;
+        a {
+            text-decoration: none;
+        }
+    }
+}

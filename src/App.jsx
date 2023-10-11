@@ -13,6 +13,7 @@ function App() {
       <Router>
         <Routes>
           <Route path='/' element={<MainPage />}/>
+          <Route path='/:uuid/project' element={<MainPage />} />
         </Routes>
       </Router>
     </div>

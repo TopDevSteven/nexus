@@ -1,9 +1,11 @@
 import React, { useRef, useState, useEffect } from 'react';
+import Arrow from './Arrow';
+import { pointToLineDistance } from './Arrow';
 
-function Node({ type, position, onMove, onTextFocus, onTextBlur, textRef}) {
-    const [textContent, setTextContent] = useState("Click to edit...");
-    const [imgsrc, setImgsrc] = useState(null);
-    const [videosrc, setVideosrc] = useState(null);
+function Node({ type, position, onMove, onTextFocus, onTextBlur, textRef, nodeId, content, imgSrc, videoSrc}) {
+    const [textContent, setTextContent] = useState(content === "" ? "Start Typing..." : content);
+    const [imgsrc, setImgsrc] = useState(imgSrc);
+    const [videosrc, setVideosrc] = useState(videoSrc);
 
     const [aspectRatio, setAspectRatio] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
@@ -12,20 +14,29 @@ function Node({ type, position, onMove, onTextFocus, onTextBlur, textRef}) {
     const [isResizing, setIsResizing] = useState(false);
     const [size, setSize] = useState({ width: 250, height: 50 });
 
-    // Text handlers
+    // arrow properties
+    const [isDrawingArrow, setIsDrawingArrow] = useState(false);
+
+    // Text Handlers
 
     const handleTextChange = (event) => {
         setTextContent(event.target.textContent);
+        let existingNodes = JSON.parse(localStorage.getItem("nodes") || '[]');
+        const nodeIndex = existingNodes.findIndex(node => node.id === nodeId);  // Assuming you passed nodeId as a prop to Node component
+
+        if (nodeIndex !== -1) {
+            existingNodes[nodeIndex].content = event.target.textContent;
+            localStorage.setItem("nodes", JSON.stringify(existingNodes));
+        }
     }
 
     const handleTextFocus = () => {
-        if (textContent === "Click to edit") {
-            setTextContent('')
+        if (textContent === "") {
+            setTextContent('Start Typing...')
         }
 
         onTextFocus();
     }
-
     // Image Handlers
 
     const handleImageChange = (event) => {
@@ -41,7 +52,14 @@ function Node({ type, position, onMove, onTextFocus, onTextBlur, textRef}) {
             image.onload = () => {
                 setAspectRatio(image.height / image.width);
                 setSize({ width: 250, height: 250 * image.height / image.width });
-            };   
+            };
+            let existingNodes = JSON.parse(localStorage.getItem("nodes") || '[]');
+            const nodeIndex = existingNodes.findIndex(node => node.id === nodeId);
+
+            if (nodeIndex !== -1) {
+                existingNodes[nodeIndex].imgsrc = render.result;
+                localStorage.setItem("nodes", JSON.stringify(existingNodes));
+            }
         }
 
         if(file) {
@@ -62,19 +80,29 @@ function Node({ type, position, onMove, onTextFocus, onTextBlur, textRef}) {
             video.onloadedmetadata = () => {
                 setAspectRatio(video.videoHeight / video.videoWidth);
             };
+
+            // let existingNodes = JSON.parse(localStorage.getItem("nodes") || '[]');
+            // const nodeIndex = existingNodes.findIndex(node => node.id === nodeId);
+
+            // if (nodeIndex !== -1) {
+            //     existingNodes[nodeIndex].videosrc = render.result;
+            //     localStorage.setItem("nodes", JSON.stringify(existingNodes));
+            // }
         }
 
         if(file) {
             render.readAsDataURL(file);
-        }
+        }    
     }
 
     // Dragging Handlers
 
+    // localStorage.clear()
+
     const handleDragMouseDown = (e) => {
-        // Prevent both dragging and resizing at the same time
-        if (e.target.tagName === 'INPUT' || e.target === textRef.current) {
-            return; // Exit early if it's an input or the contentEditable div
+
+        if (e.target.tagName === 'INPUT' || e.target === textRef.current || isDrawingArrow) {
+            return; // Exit early if it's an input, the contentEditable div, or if we're drawing an arrow
         }
 
         setIsDragging(true);
@@ -89,7 +117,7 @@ function Node({ type, position, onMove, onTextFocus, onTextBlur, textRef}) {
             nodeRef.current.style.top = `${position.y + dy}px`;
         }
     };
-    
+
     const handleDragMouseUp = () => {
         setIsDragging(false);
         onMove({ x: parseInt(nodeRef.current.style.left), y: parseInt(nodeRef.current.style.top) });
@@ -129,7 +157,7 @@ function Node({ type, position, onMove, onTextFocus, onTextBlur, textRef}) {
 
     useEffect(() => {
         const nodeElement = nodeRef.current;
-        if (nodeElement) {
+        if (nodeElement && type !== "arrow") {
             nodeElement.addEventListener('mousedown', handleDragMouseDown);
             document.addEventListener('mousemove', handleDragMouseMove);
             document.addEventListener('mouseup', handleDragMouseUp);
@@ -145,6 +173,28 @@ function Node({ type, position, onMove, onTextFocus, onTextBlur, textRef}) {
     const suppressDefaultDrag = (e) => {
         e.preventDefault();
     };
+
+    // arrow handlers
+
+    let isArrowType = type === "arrow";
+
+    const handleArrowMouseDown = (e) => {
+        if (!isArrowType) return;
+        handleDragMouseDown(e);
+    };
+
+    const handleArrowMouseUp = (e) => {
+        if (!isArrowType) return;
+        handleDragMouseUp(e);
+    };
+
+    const handleArrowMouseMove = (e) => {
+        if (!isArrowType) return;
+        
+        handleDragMouseMove(e);
+    };
+
+    // localStorage.clear();
 
     const renderContent = () => {
         switch (type) {
@@ -185,11 +235,12 @@ function Node({ type, position, onMove, onTextFocus, onTextBlur, textRef}) {
                 return (
                     <div
                         ref={textRef}
+                        className='text-box'
                         contentEditable={true}
                         suppressContentEditableWarning={true}
                         onBlur={handleTextChange}                        
                         onFocus={handleTextFocus}
-                        style={{ cursor: 'text', minHeight: '20px'}}
+                        style={{ cursor: 'text', minHeight: '20px', color: textContent === "Start Typing..." ? '#939393' : 'black'}}
                     >
                         {textContent}
                     </div>
@@ -225,6 +276,18 @@ function Node({ type, position, onMove, onTextFocus, onTextBlur, textRef}) {
                         }
                     </div>
                 )
+                case 'arrow':
+                    return (
+                        <Arrow 
+                            startX={0} 
+                            startY={0} 
+                            endX={size.width} 
+                            endY={size.height} 
+                            onArrowMouseDown={handleArrowMouseDown}
+                            onArrowMouseUp={handleArrowMouseUp}
+                            onArrowMouseMove={handleArrowMouseMove}
+                        />
+                    );
             default:
                 return null;
         }
@@ -236,38 +299,33 @@ function Node({ type, position, onMove, onTextFocus, onTextBlur, textRef}) {
         top: position.y,
         padding: '10px',
         // border: '1px solid gray',
-        backgroundColor: 'white',
+        backgroundColor:  type !== "arrow" ? 'white' : "transparent",
         width: `${size.width}px`,
+        boxShadow: type !== "arrow" && `0px 0px 6px rgba(255, 255, 255, 0.8)`,
     };
+    // localStorage.clear()
+
+    
 
   return (
     <div ref={nodeRef} style={styles}>
-        {/* {
-            type === 'text' &&
-            <div
-                ref={textRef}
-                contentEditable={true}
-                suppressContentEditableWarning={true}
-                onBlur={handleTextChange}                        
-                onFocus={handleTextFocus}
-                style={{ cursor: 'text', minHeight: '20px', ...textStyles }} // Apply the textStyles prop here
-            >
-            {textContent}
-            </div>
-        } */}
         {renderContent()}
-        <div
-            style={{
-                position: 'absolute',
-                bottom: 0,
-                right: 0,
-                width: '15px',
-                height: '15px',
-                background: 'red',
-                cursor: 'nwse-resize',
-            }}
-            onMouseDown={handleResizeMouseDown}
-        ></div>
+        {
+            type !==  "arrow" &&
+                <div
+                    style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        right: 0,
+                        cursor: 'nwse-resize',
+                        width: '0',
+                        height: '0',
+                        borderRight: '7px solid #888',
+                        borderTop: '7px solid transparent',
+                    }}
+                    onMouseDown={handleResizeMouseDown}
+                ></div>
+        }
     </div>
   );
 }

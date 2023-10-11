@@ -1,20 +1,193 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@200&display=swap');
+
+$default-back-color: #1E1639;
+$font-color: #CBCBE8;
+
 .App {
-  height: 100vh;
+  height: calc(100vh - 16px);
+  border-radius: 20px;
+  background: $default-back-color;
+  padding: 8px;
   .main-page {
-    height: 100%;
-    .home-container {
-      height: calc(100% - 100px);
+    height: calc(100% - 8px);
+
+    .app-header {
+      border-radius: 15px;
+      background: #0A0221;
+      padding: 20px;
       display: flex;
-      .app-toolbar {
+      align-items: center;
+      .btn-group {
+        margin-left: auto;
+        display: flex;
+        span {
+          margin-right: 20px;
+          border: 1px solid #9157FB;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 12px;
+          cursor: pointer;
+          position: relative;
+          div {
+            position: absolute;
+            right: 10px;
+            top: 9px;
+          }
+          path {
+            stroke: #9157FB;
+          }
+        }
+      }
+    }
+
+    .home-container {
+      width: 100%;
+      height: calc(100% - 102px);
+      display: flex;
+
+      .tools-wrapper {
+        min-width: 80px;
         height: 100%;
-        width: 100px;
-        background-color: bisque;
+        margin-top: 8px;
+        border-radius: 10px;
+        background: linear-gradient(180deg, #0A0221 0%, rgba(145, 87, 251, 0.00) 100%);
+        box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+        .app-projecttool-bar {
+          margin-top: 8px;
+          width: 80px;
+          height: 100%;
+          background: transparent;
+          padding-top: 20px;
+
+          div {
+            text-align: center;
+            p {
+              margin: 0px;
+              font-size: 14px;
+              color: $font-color;
+            }
+          }
+        }
+
+        .app-toolbar {
+          padding-top: 20px;
+          width: 80px;
+          min-width: 80px;
+          height: 100%;
+          background: transparent;
+          text-align: center;
+          .tool-icon {
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            span {
+              background-color: black;
+              margin-top: 20px;
+              padding: 10px;
+              border-radius: 10px;
+              border: 2px solid #6586F4;
+              cursor: pointer;
+              svg {
+                path {
+                  stroke: #6586F4;
+                }
+              }
+            }
+
+            .arrow-tool {
+              padding: 7px 6px 7px 6px;
+            }
+          }
+
+          .tool-content {
+            // color: #6586F4;
+          }
+        }
+      }
+      
+      .app-projectspace {
+        width: 100%;
+        height: 100%;
+        background-image: radial-gradient(circle, #3b1e75 1px, transparent 1px), radial-gradient(circle, #3b1e75 1px, transparent 1px);
+        background-size: 10px 10px;
+        background-position: 0 0, 0px 0px;
+        overflow: auto;
+        position: relative;
       }
 
+
       .app-workingspace {
+        width: 100%;
         height: 100%;
-        background-color: aquamarine;
+        background-image: radial-gradient(circle, #3b1e75 1px, transparent 1px), radial-gradient(circle, #3b1e75 1px, transparent 1px);
+        background-size: 10px 10px;
+        background-position: 0 0, 0px 0px;
+        overflow: auto;
+        position: relative;
+
+        div {
+          .text-box {
+            padding: 10px;
+            outline: none;
+            border: none;
+          }
+        }
       }
+    }
+  }
+}
+
+
+.project-box {
+  align-self: start;
+  display: flex;
+  flex-direction: column; /* This arranges children vertically */
+  align-items: center; /* Centers children horizontally */
+  position: absolute; /* Added for precise positioning */
+  top: 0%; /* Center vertically */
+  left: 0%; /* Center horizontally */
+  transform: translate(-50%, 0%);
+
+  .project-icon {
+    background-color: #333536;
+    padding: 20px;
+    border-radius: 20px;
+    border: 2px solid #A1A2A5;
+    width: 50px;  /* Change this width as needed for your icon */
+    height: 50px; /* This might be necessary to ensure the icon size is as expected */
+    margin-bottom: 10px; /* Spacing between the icon and the content */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    span {
+      svg {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  }
+
+  .project-content {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    width: 100%; 
+    .editable-content {
+      background-color: transparent;
+      color: #A1A2A5;
+      font-size: 20px;
+      border: none;
+      outline: none;
+      width: 100%;
+      border: none;
+      outline: none; /* Remove focus outline */
+      white-space: pre-wrap;
+      text-align: center;
+      resize: none;
     }
   }
 }
